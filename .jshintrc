@@ -16,5 +16,5 @@
     "trailing": true,
     "smarttabs": true,
     "white": true,
-    "predef": ["_", "define"]
+    "predef": ["_", "d3", "define", "moment"]
 }

@@ -1,3 +1,7 @@
+.activity-calendar {
+  position: relative;
+}
+
 .activity-calendar .activity-header {
   border-bottom: 1px solid #f7f7f7;
   margin: 0;
