@@ -1,0 +1,252 @@
+.activity-calendar .activity-header {
+  border-bottom: 1px solid #f7f7f7;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  z-index: 49;
+}
+
+.activity-calendar .activity-header .current-month {
+  float: left;
+  margin: 8px 0 7px 0;
+  width: 170px;
+  font-weight: 500;
+}
+
+.activity-calendar .activity-header .project-key {
+  margin: 17px 0 0 12px;
+  padding: 0;
+  font-size: 12px;
+  float: right;
+}
+
+.activity-calendar .activity-header .project-key dd {
+  font-weight: normal;
+  margin: 0 15px 0 0;
+  padding: 0;
+  float: left;
+}
+
+.activity-calendar .activity-header .project-key .key-chip {
+  float: left;
+  margin: 3px 5px 0 0;
+  width: 8px;
+  height: 8px;
+  background: #ddd;
+  border-radius: 9px;
+  background: #ddd;
+}
+
+.activity-calendar .activity-header .project-key .project001 .key-chip {
+  background: #c3dae5;
+}
+
+.activity-calendar .activity-header .project-key .project002 .key-chip {
+  background: #ebe6f2;
+}
+
+.activity-calendar .activity-header .project-key .project003 .key-chip {
+  background: #d5e5d3;
+}
+
+.activity-calendar .activity-header .days {
+  clear: both;
+  list-style: none;
+  padding: 0 0 2px;
+  width: 826px;
+}
+
+.activity-calendar .activity-header .days >li:first-child {
+  width: 170px;
+  min-height: 10px;
+  text-align: left;
+  position: relative;
+}
+
+.activity-calendar .activity-header .days >li {
+  float: left;
+  width: 90px;
+  text-align: center;
+  line-height: 28px;
+  color: #666;
+  font-size: 11px;
+  position: relative;
+}
+
+.activity-calendar .activity-intervals {
+  padding-top: 70px;
+}
+
+.activity-calendar .activity-intervals .defs-container {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+}
+
+.activity-calendar .activity-intervals .month-block {
+  margin: -1px 0 0;
+  line-height: 10px;
+  font-size: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.activity-calendar .activity-intervals .month-block .summary-fill {
+  fill: transparent;
+}
+
+.activity-calendar .activity-intervals .month-block .week-shelf {
+  stroke: #bbb;
+  stroke-dashArray: 1,2;
+  stroke-width: 1px;
+  fill: none;
+  shape-rendering: crispEdges;
+}
+
+.activity-calendar .activity-intervals .month-block .week-summaries {
+  text-anchor: start;
+}
+
+.activity-calendar .activity-intervals .month-block .date-range {
+  font-size: 11px;
+  fill: #333;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.activity-calendar .activity-intervals .month-block .week-total-primary {
+  text-anchor: start;
+  font-size: 31px;
+  font-weight: 300;
+  fill: #444;
+}
+
+.activity-calendar .activity-intervals .month-block .project-summary-type {
+  font-weight: 500;
+  fill: #555;
+}
+
+.activity-calendar .activity-intervals .month-block .project-summary,
+.activity-calendar .activity-intervals .month-block .project-summary-type {
+  text-anchor: start;
+  font-size: 13px;
+  font-weight: 300;
+  fill: #777;
+}
+
+.activity-calendar .activity-intervals .month-block .week-shelf-connection-strong {
+  stroke-dashArray: none;
+  stroke: #ddd;
+}
+
+.activity-calendar .activity-intervals .month-block .week-shelf-connection {
+  stroke: #bbb;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+  fill: none;
+  stroke-dashArray: 1,2;
+}
+
+.activity-calendar .activity-intervals .month-block .rest-day,
+.activity-calendar .activity-intervals .month-block .xt-day,
+.activity-calendar .activity-intervals .month-block .no-rest {
+  transition: fill-opacity 1s;
+}
+
+.activity-calendar .activity-intervals .month-block .rest-day,
+.activity-calendar .activity-intervals .month-block .xt-day {
+  fill: #bbb;
+  cursor: default;
+  font-size: 12px;
+  font-weight: 200;
+  text-anchor: middle;
+}
+
+.activity-calendar .activity-intervals .month-block a.activity-link {
+  color: #007FB6;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border 0.1s ease,box-shadow 0.1s ease,background-color 0.1s ease,opacity 0.1s ease;
+  -webkit-transition: border 0.1s ease,box-shadow 0.1s ease,background-color 0.1s ease,opacity 0.1s ease;
+  -moz-transition: border 0.1s ease,box-shadow 0.1s ease,background-color 0.1s ease,opacity 0.1s ease;
+  -o-transition: border 0.1s ease,box-shadow 0.1s ease,background-color 0.1s ease,opacity 0.1s ease;
+  -ms-transition: border 0.1s ease,box-shadow 0.1s ease,background-color 0.1s ease,opacity 0.1s ease;
+}
+
+.activity-calendar .activity-intervals .month-block .activity {
+  transition-property: fill;
+  transition-duration: 1s;
+  stroke-width: 1px;
+  stroke-opacity: 1;
+  fill-opacity: 1;
+}
+
+.activity-calendar .activity-intervals .month-block .activity-type-wrapper {
+  stroke-width: 1px;
+  stroke-opacity: 1;
+  stroke-dasharray: 1,2;
+  stroke: #bbb;
+  fill: #fff;
+  fill-opacity: 1;
+  transition: fill-opacity 0.4s;
+  -webkit-transition: fill-opacity 0.4s;
+  -moz-transition: fill-opacity 0.4s;
+  -o-transition: fill-opacity 0.4s;
+  -ms-transition: fill-opacity 0.4s;
+}
+
+.activity-calendar .activity-intervals .month-block .activity-type-ride {
+  fill: #ebe6f2;
+  stroke: #DFD7E9;
+}
+
+.activity-calendar .activity-intervals .month-block .activity-type-run {
+  fill: #d5e5d3;
+  stroke: #BDD6BA;
+}
+
+.activity-calendar .activity-intervals .month-block .day-total-depth-0,
+.activity-calendar .activity-intervals .month-block .day-total-depth-1 {
+  fill-opacity: 0;
+}
+
+.activity-calendar .activity-intervals .month-block .day-total {
+  font-size: 10px;
+  pointer-events: none;
+  text-anchor: middle;
+  stroke: none;
+  font-family: arial,sans-serif;
+}
+
+.activity-calendar .activity-intervals .month-block .sum.no-rest {
+  fill-opacity: 0;
+  font-size: 13px;
+  font-weight: 500;
+  fill: #333;
+  pointer-events: none;
+  text-anchor: middle;
+}
+
+.activity-calendar .activity-intervals .month-block .sum.sum-triathlon {
+  fill-opacity: 0.65;
+  font-size: 12px;
+}
+
+.activity-calendar .activity-intervals .month-block.chart-rendered .sum-triathlon {
+  fill-opacity: 0.62;
+}
+
+.activity-calendar .activity-intervals .month-block.chart-rendered .no-rest {
+  transition: none;
+  fill-opacity: 0.75;
+}
+
+.activity-calendar .activity-intervals .month-block .sum {
+  fill: #333;
+  text-anchor: middle;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.15);
+  stroke: none;
+  font-size: 13px;
+  font-family: arial,sans-serif;
+}
