@@ -1,8 +1,50 @@
 /*! activizity v0.0.0 - MIT license */
 
+var data = {
+  '2015-06-12': {
+    '10001': {
+      'name': 'Dave Sewell',
+      'entries': {
+        'overhead': {
+          'minutes': 180,
+          'comments': ['convention prep']
+        },
+        'fsapp': {
+          'minutes': 300,
+          'comments': ['investigation into barcode issue, notifications']
+        }
+      }
+    },
+    '10002': {
+      'name': 'Jonathan Clarkin',
+      'entries': {
+        'vacation': {
+          'minutes': 480
+        }
+      }
+    }
+  },
+  '2015-06-11': {
+    '10002': {
+      'name': 'Jonathan Clarkin',
+      'entries': {
+        'vacation': {
+          'minutes': 480
+        }
+      }
+    }
+  },
+  '2015-06-10': {
+  },
+  '2015-06-09': {
+  },
+  '2015-06-08': {
+  }
+}
+
 ;(function (global) {
 'use strict';
-function moduleDefinition(/*dependency*/) {
+function moduleDefinition(_, d3, moment) {
 
 // ---------------------------------------------------------------------------
 
@@ -12,7 +54,64 @@ function moduleDefinition(/*dependency*/) {
  * @api public
  */
 
-function activizity() {
+function activizity(options) {
+  options = options || {};
+  _.defaults(options, {
+    containerSelector: '#activizity',
+    dateFormat: 'YYYY-MM-DD',
+    displayDateFormat: 'D MMM YYYY',
+    displayMonthFormat: 'MMM YYYY',
+  });
+
+  var dates = _.keys(data).sort();
+  if (dates.length === 0) {
+    return;
+  }
+
+  var currentMonth = moment(dates[0], options.dateFormat);
+  var projects =
+    // make the list unique
+    _.uniq(
+      // flatten the arrays of project keys
+      _.flatten(
+        // get the project keys from the entries
+        _.map(
+          //pluck the entries from the user info
+          _.pluck(
+            //flatten the arrays of user info
+            _.flatten(
+              _.map(
+                // get the values from the days: the userId->userInfo map
+                _.values(data),
+                function(users) {
+                  //get the values from the users: the userInfo
+                  return _.values(users);
+                }
+              )
+            ), 'entries'
+          ),
+          function(entries) { return _.keys(entries); }
+        )
+      )
+    );
+
+  console.log(projects);
+
+  var header = d3.select(options.containerSelector)
+    .append('div')
+    .attr('class', 'activity-calendar')
+    .append('div')
+    .attr('class', 'activity-header');
+  header.append('h3')
+    .attr('class', 'current-month')
+    .text(currentMonth.format(options.displayMonthFormat));
+  var projectList = header.append('dl')
+    .attr('class', 'project-key');
+  projectList.selectAll('dd')
+    .data(projects)
+    .enter().append('dd')
+    .attr('class', function(p) { return p; })
+    .text(function(p) { return '#' + p; });
 }
 
 /**
@@ -25,11 +124,11 @@ return activizity;
 
 } if (typeof exports === 'object') {
     // node export
-    module.exports = moduleDefinition(/*require('dependency')*/);
+    module.exports = moduleDefinition(require('lodash'), require('d3'), require('moment'));
 } else if (typeof define === 'function' && define.amd) {
     // amd anonymous module registration
-    define([/*'dependency'*/], moduleDefinition);
+    define(['lodash', 'd3', 'moment'], moduleDefinition);
 } else {
     // browser global
-    global.activizity = moduleDefinition(/*global.dependency*/);
+    global.activizity = moduleDefinition(_, d3, moment);
 }}(this));
