@@ -16,5 +16,5 @@
     "trailing": true,
     "smarttabs": true,
     "white": true,
-    "predef": ["define"]
+    "predef": ["_", "define"]
 }
