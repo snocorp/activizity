@@ -1,17 +1,20 @@
 {
-    "name": "activizity",
-    "description": "",
-    "version": "0.0.0",
-    "main": "activizity.js",
-    "ignore": [
-        "test",
-        ".jshintrc",
-        ".travis.yml",
-        "CHANGELOG.md",
-        "karma.conf.js",
-        "package.json"
-    ],
-    "devDependencies": {
-        "chai": "*"
-    }
+  "name": "activizity",
+  "description": "",
+  "version": "0.0.0",
+  "main": "activizity.js",
+  "ignore": [
+    "test",
+    ".jshintrc",
+    ".travis.yml",
+    "CHANGELOG.md",
+    "karma.conf.js",
+    "package.json"
+  ],
+  "devDependencies": {
+    "chai": "*"
+  },
+  "dependencies": {
+    "lodash": "~3.9.3"
+  }
 }
