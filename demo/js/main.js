@@ -1,9 +1,18 @@
 require.config({
   paths: {
     activizity: '../../activizity',
-    d3: "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3",
-    lodash: "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash",
-    moment: "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment-with-locales"
+    d3: [
+      "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3",
+      "/bower_components/d3/d3"
+    ],
+    lodash: [
+      "https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash",
+      "/bower_components/lodash/lodash"
+    ],
+    moment: [
+      "https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment-with-locales",
+      "/bower_components/moment/min/moment-with-locales"
+    ]
   }
 });
 
@@ -13,7 +22,7 @@ require(['activizity'], function(activizity) {
   activizity({
     data: function(callback) {
       callback(null,{
-        '2015-06-12': {
+        '2015-06-02': {
           '10001': {
             'name': 'Dave Sewell',
             'entries': {
@@ -36,7 +45,7 @@ require(['activizity'], function(activizity) {
             }
           }
         },
-        '2015-06-11': {
+        '2015-06-01': {
           '10002': {
             'name': 'Jonathan Clarkin',
             'entries': {
@@ -46,11 +55,11 @@ require(['activizity'], function(activizity) {
             }
           }
         },
-        '2015-06-10': {
+        '2015-05-31': {
         },
-        '2015-06-09': {
+        '2015-05-30': {
         },
-        '2015-06-08': {
+        '2015-05-29': {
         }
       });
     }

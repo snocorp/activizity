@@ -15,6 +15,10 @@
     "chai": "*"
   },
   "dependencies": {
-    "lodash": "~3.9.3"
+    "d3": "~3.5.5",
+    "lodash": "~3.9.3",
+    "moment": "~2.10.3",
+    "normalize.css": "~3.0.3",
+    "requirejs-bower": "~2.1.18"
   }
 }
