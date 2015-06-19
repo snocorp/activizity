@@ -63,6 +63,12 @@ function activizity(options) {
           )
         )
       );
+    var months =
+      _.uniq(
+        _.map(_.keys(data), function(date) {
+          return moment(date, options.dateFormat).format('YYYY-MM');
+        })
+      );
 
     var weekdaysShort = moment.weekdaysShort();
     weekdaysShort.unshift('');
@@ -89,8 +95,68 @@ function activizity(options) {
       .enter().append('li')
       .text(function(w) { return w; });
 
-    calendar.append('div')
+    var intervals = calendar.append('div')
       .attr('class', 'activity-intervals');
+    intervals.append('svg')
+      .attr('class', 'defs-container')
+      .append('defs');
+    var monthBlocks = intervals.selectAll('div')
+      .data(months);
+    var monthBlock = monthBlocks.enter().append('div')
+      .attr('class', 'month-block')
+      .attr('data-month-interval', function(month) { return month; })
+      .attr('style', function(month) {
+        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+        var weeks = lastWeek - firstWeek;
+
+        return 'height:' + (160 * weeks) + 'px;';
+      });
+    var monthChart = monthBlock.append('svg')
+      .attr('class', 'month-chart')
+      .attr('height', function(month) {
+        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+        var weeks = lastWeek - firstWeek;
+
+        return 160 * weeks;
+      })
+      .attr('width', '825')
+      .attr('viewBox', function(month) {
+        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+        var weeks = lastWeek - firstWeek;
+
+        return '0 0 825 ' + (160 * weeks);
+      });
+    monthChart.append('rect')
+      .attr('class', 'summary-fill')
+      .attr('translate', '(0,0)')
+      .attr('width', '150')
+      .attr('height', function(month) {
+        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+        var weeks = lastWeek - firstWeek;
+
+        return 160 * weeks;
+      });
+    var weeksGroup = monthChart.append('g')
+      .attr('transform', "translate(16, 0)");
+    weeksGroup.selectAll('g')
+      .data(function(month) {
+        var weeks = [];
+        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+        for (var i = firstWeek; i <= lastWeek; i++) {
+          weeks.push(i);
+        }
+        return weeks;
+      })
+      .enter().append('g')
+      .attr('class', 'week')
+      .attr('transform', function(week, index) {
+        return 'translate(0, ' + (160 * index) + ')';
+      });
   });
 }
 
