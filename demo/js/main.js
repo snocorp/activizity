@@ -56,6 +56,14 @@ require(['activizity'], function(activizity) {
           }
         },
         '2015-05-31': {
+          '10003': {
+            'name': 'Martin Hynie',
+            'entries': {
+              'authapp': {
+                'minutes': 240
+              }
+            }
+          }
         },
         '2015-05-30': {
         },

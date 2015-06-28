@@ -19,6 +19,7 @@ function activizity(options) {
     data: function(callback) { callback(null,{}); },
     dateFormat: 'YYYY-MM-DD',
     displayDateFormat: 'D MMM YYYY',
+    displayShortDateFormat: 'D MMM',
     displayMonthFormat: 'MMM YYYY',
     locale: 'en-ca'
   });
@@ -31,7 +32,7 @@ function activizity(options) {
       return;
     }
 
-    var dates = _.keys(data).sort();
+    var dates = _.keys(data).sort().reverse();
     if (dates.length === 0) {
       console.log('No dates provided');
       return;
@@ -63,6 +64,7 @@ function activizity(options) {
           )
         )
       );
+    var colors = colorArray(projects.length);
     var months =
       _.uniq(
         _.map(_.keys(data), function(date) {
@@ -81,12 +83,20 @@ function activizity(options) {
     header.append('h3')
       .attr('class', 'current-month')
       .text(currentMonth.format(options.displayMonthFormat));
-    var projectList = header.append('dl')
+    var sidebar = calendar.append('div')
+      .attr('class', 'activity-sidebar');
+    var projectList = sidebar.append('dl')
       .attr('class', 'project-key');
-    projectList.selectAll('dd')
+    var project = projectList.selectAll('dd')
       .data(projects)
       .enter().append('dd')
-      .attr('class', function(p) { return p; })
+      .attr('class', function(p) { return p; });
+    project.append('span')
+      .attr('class', 'key-chip')
+      .attr('style', function(p, index) {
+        return 'background-color: hsla('+colors[index].h+','+colors[index].s+'%,'+colors[index].l+'%,0.4);';
+      });
+    project.append('span')
       .text(function(p) { return '#' + p; });
     var daysList = header.append('ul')
       .attr('class', 'days');
@@ -104,31 +114,32 @@ function activizity(options) {
       .data(months);
     var monthBlock = monthBlocks.enter().append('div')
       .attr('class', 'month-block')
-      .attr('data-month-interval', function(month) { return month; })
-      .attr('style', function(month) {
-        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        var weeks = lastWeek - firstWeek;
-
-        return 'height:' + (160 * weeks) + 'px;';
-      });
+      .attr('data-month-interval', function(month) { return month; });
+      // .attr('style', function(month) {
+      //   var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+      //   var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+      //   var weeks = lastWeek - firstWeek;
+      //
+      //   return 'height:' + (160 * weeks) + 'px;';
+      // });
     var monthChart = monthBlock.append('svg')
       .attr('class', 'month-chart')
-      .attr('height', function(month) {
-        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        var weeks = lastWeek - firstWeek;
-
-        return 160 * weeks;
-      })
-      .attr('width', '825')
+      // .attr('height', function(month) {
+      //   var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
+      //   var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
+      //   var weeks = lastWeek - firstWeek;
+      //
+      //   return 160 * weeks;
+      // })
+      // .attr('width', '825')
       .attr('viewBox', function(month) {
         var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
         var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
         var weeks = lastWeek - firstWeek;
 
         return '0 0 825 ' + (160 * weeks);
-      });
+      })
+      .attr('preserveAspectRatio', 'xMinYMin meet');
     monthChart.append('rect')
       .attr('class', 'summary-fill')
       .attr('translate', '(0,0)')
@@ -142,13 +153,16 @@ function activizity(options) {
       });
     var weeksGroup = monthChart.append('g')
       .attr('transform', "translate(16, 0)");
-    weeksGroup.selectAll('g')
+    var week = weeksGroup.selectAll('g')
       .data(function(month) {
         var weeks = [];
         var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
         var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        for (var i = firstWeek; i <= lastWeek; i++) {
-          weeks.push(i);
+        for (var i = lastWeek; i >= firstWeek; i--) {
+          weeks.push({
+            month: month,
+            week: i
+          });
         }
         return weeks;
       })
@@ -157,7 +171,40 @@ function activizity(options) {
       .attr('transform', function(week, index) {
         return 'translate(0, ' + (160 * index) + ')';
       });
+    week.append('line')
+      .attr('class', 'week-shelf')
+      .attr('x1', '151')
+      .attr('y1', '132')
+      .attr('x2', '789')
+      .attr('y2', '132');
+    var weekSummary = week.append('g')
+      .attr('class', 'week-summaries')
+      .attr('transform', 'translate(0, 34)');
+    weekSummary.append('text')
+      .attr('class', 'date-range')
+      .attr('transform', 'translate(0, 0)')
+      .text(function(w) {
+        var d1 = moment(w.month, 'YYYY-MM').week(w.week),
+          d2 = moment(d1).add(6, 'days');
+        if (d2.month() > d1.month()) {
+          d2 = moment(d1).endOf('month');
+        }
+        return d1.format('MMM D') + '-' + d2.format('D');
+      });
   });
+}
+
+function colorArray(n) {
+  var i, colors = [], y = 0.5, u, v, phi;
+  for(i = 0; i < 360; i += 360 / n) {
+    colors.push({
+      h: i,
+      s: 90 + Math.random() * 10,
+      l: 50 + Math.random() * 10
+    });
+  }
+
+  return colors;
 }
 
 /**
