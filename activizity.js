@@ -71,9 +71,52 @@ function activizity(options) {
           return moment(date, options.dateFormat).format('YYYY-MM');
         })
       );
+    months = _.map(months, function(formatted) {
+      var firstWeek = moment(formatted+'-01', 'YYYY-MM-DD').startOf('month').week(),
+        lastWeek = moment(formatted+'-01', 'YYYY-MM-DD').endOf('month').week(),
+        week, weeks = [], i, j, d1 = moment(formatted, 'YYYY-MM'), d2;
+
+      for (i = lastWeek; i >= firstWeek; i--) {
+        week = {
+          month: formatted,
+          week: i,
+          days: []
+        };
+
+        if (i === firstWeek) {
+          d1.date(1);
+        } else {
+          d1.week(i).day(0);
+        }
+        d2 = moment(d1);
+        j = 1;
+        while (j <= 7 && d2.month() === d1.month()) {
+          week.days.push(moment(d2));
+          j++;
+          d2.add(1, 'days');
+        }
+        weeks.push(week);
+      }
+      return {
+        formatted: formatted,
+        firstWeek: firstWeek,
+        lastWeek: lastWeek,
+        weeks
+      };
+    });
+    var dateTotals = _.mapValues(data, function(users) {
+      return _.reduce(users, function(result, user) {
+        return result + _.reduce(_.values(user.entries), function(result2, entry) {
+          return result2 + entry.minutes;
+        }, 0);
+      }, 0);
+    });
+    var maxDateTotal = _.max(_.values(dateTotals));
 
     var weekdaysShort = moment.weekdaysShort();
     weekdaysShort.unshift('');
+
+    var dayWidth = 90.75;
 
     var calendar = d3.select(options.containerSelector)
       .append('div')
@@ -114,30 +157,11 @@ function activizity(options) {
       .data(months);
     var monthBlock = monthBlocks.enter().append('div')
       .attr('class', 'month-block')
-      .attr('data-month-interval', function(month) { return month; });
-      // .attr('style', function(month) {
-      //   var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-      //   var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-      //   var weeks = lastWeek - firstWeek;
-      //
-      //   return 'height:' + (160 * weeks) + 'px;';
-      // });
+      .attr('data-month-interval', function(month) { return month.formatted; });
     var monthChart = monthBlock.append('svg')
       .attr('class', 'month-chart')
-      // .attr('height', function(month) {
-      //   var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-      //   var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-      //   var weeks = lastWeek - firstWeek;
-      //
-      //   return 160 * weeks;
-      // })
-      // .attr('width', '825')
       .attr('viewBox', function(month) {
-        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        var weeks = lastWeek - firstWeek;
-
-        return '0 0 825 ' + (160 * weeks);
+        return '0 0 825 ' + (160 * month.weeks.length);
       })
       .attr('preserveAspectRatio', 'xMinYMin meet');
     monthChart.append('rect')
@@ -145,26 +169,13 @@ function activizity(options) {
       .attr('translate', '(0,0)')
       .attr('width', '150')
       .attr('height', function(month) {
-        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        var weeks = lastWeek - firstWeek;
-
-        return 160 * weeks;
+        return 160 * month.weeks.length;
       });
     var weeksGroup = monthChart.append('g')
       .attr('transform', "translate(16, 0)");
     var week = weeksGroup.selectAll('g')
       .data(function(month) {
-        var weeks = [];
-        var firstWeek = moment(month, 'YYYY-MM').startOf('month').week();
-        var lastWeek = moment(month, 'YYYY-MM').endOf('month').week();
-        for (var i = lastWeek; i >= firstWeek; i--) {
-          weeks.push({
-            month: month,
-            week: i
-          });
-        }
-        return weeks;
+        return month.weeks;
       })
       .enter().append('g')
       .attr('class', 'week')
@@ -184,12 +195,61 @@ function activizity(options) {
       .attr('class', 'date-range')
       .attr('transform', 'translate(0, 0)')
       .text(function(w) {
-        var d1 = moment(w.month, 'YYYY-MM').week(w.week),
-          d2 = moment(d1).add(6, 'days');
-        if (d2.month() > d1.month()) {
-          d2 = moment(d1).endOf('month');
+        var d1 = w.days[0],
+          d2 = w.days[w.days.length - 1];
+
+        return d1.format('MMM D') + (d2.isAfter(d1) ? '-' + d2.format('D') : '');
+      });
+    weekSummary.append('text')
+      .attr('class', 'week-total-primary')
+      .attr('transform', 'translate(-2, 34)')
+      .text(function(w) {
+        var minutes = 0,
+          hours,
+          handleUser = function(u) {
+            if (u.entries) {
+              _.each(u.entries, function(e, key) {
+                minutes += e.minutes;
+              });
+            }
+          };
+        _.each(w.days, function(d) {
+          var users = data[d.format(options.dateFormat)];
+          if (users) {
+            _.each(users, handleUser);
+          }
+        });
+
+        hours = Math.floor(minutes / 60);
+        minutes = minutes - hours * 60;
+
+        return hours + 'h ' + minutes + 'm';
+      });
+    var dayWrap = week.selectAll('g.day-wrap')
+      .data(function(w) {
+        return w.days;
+      })
+      .enter().append('g')
+      .attr('class', 'day-wrap')
+      .attr('transform', function(d, index) {
+        return 'translate(' + (173.75 + index * dayWidth) + ', 40)';
+      });
+    dayWrap.append('line')
+      .attr('class', 'week-shelf-connection')
+      .attr('x1', (dayWidth/2))
+      .attr('y1', '92')
+      .attr('x2', (dayWidth/2))
+      .attr('y2', '28');
+    dayWrap.append('circle')
+      .attr('class', 'activity activity-type-wrapper')
+      .attr('cx', (dayWidth/2))
+      .attr('cy', '28')
+      .attr('r', function(d) {
+        var dateFormatted = d.format(options.dateFormat), total = 0;
+        if (_.has(dateTotals, dateFormatted)) {
+          total = dateTotals[dateFormatted];
         }
-        return d1.format('MMM D') + '-' + d2.format('D');
+        return 38 * total / maxDateTotal;
       });
   });
 }
