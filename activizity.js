@@ -249,7 +249,7 @@ function activizity(options) {
         if (_.has(dateTotals, dateFormatted)) {
           total = dateTotals[dateFormatted];
         }
-        return 38 * total / maxDateTotal;
+        return 42 * total / maxDateTotal;
       });
   });
 }
