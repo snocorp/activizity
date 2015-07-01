@@ -64,7 +64,10 @@ function activizity(options) {
           )
         )
       );
-    var colors = colorArray(projects.length);
+    var colors = {};
+    _.each(colorArray(projects.length), function(color, index) {
+      colors[projects[index]] = color;
+    });
     var months =
       _.uniq(
         _.map(_.keys(data), function(date) {
@@ -112,11 +115,42 @@ function activizity(options) {
       }, 0);
     });
     var maxDateTotal = _.max(_.values(dateTotals));
+    console.log(maxDateTotal);
+
+    var dateEntries = _.mapValues(_.mapValues(data, function(users) {
+      var entries = {};
+      _.each(users, function(user) {
+        _.each(user.entries, function(entry, key) {
+          if (!_.has(entries, key)) {
+            entries[key] = entry.minutes;
+          } else {
+            entries[key] += entry.minutes;
+          }
+        });
+      });
+      return entries;
+    }), function(entries) {
+      var results = [];
+      _.each(entries, function(minutes, project) {
+        results.push({ project: project, minutes: minutes });
+      });
+      return {minutes: _.sum(results, function(result) { return result.minutes; }), children: results};
+    });
+
+    var dayWidth = 90.75;
+    var radius = 42;
+    var diameter = 2 * radius;
+    var pack = d3.layout.pack()
+      .size([dayWidth, 56])
+      .radius(function(value) {
+        return radius * value / maxDateTotal;
+      })
+      .value(function(entry) {
+        return entry.minutes;
+      });
 
     var weekdaysShort = moment.weekdaysShort();
     weekdaysShort.unshift('');
-
-    var dayWidth = 90.75;
 
     var calendar = d3.select(options.containerSelector)
       .append('div')
@@ -137,7 +171,7 @@ function activizity(options) {
     project.append('span')
       .attr('class', 'key-chip')
       .attr('style', function(p, index) {
-        return 'background-color: hsla('+colors[index].h+','+colors[index].s+'%,'+colors[index].l+'%,0.4);';
+        return 'background-color: hsla('+colors[p].h+','+colors[p].s+'%,'+colors[p].l+'%,0.4);';
       });
     project.append('span')
       .text(function(p) { return '#' + p; });
@@ -240,16 +274,30 @@ function activizity(options) {
       .attr('y1', '92')
       .attr('x2', (dayWidth/2))
       .attr('y2', '28');
-    dayWrap.append('circle')
-      .attr('class', 'activity activity-type-wrapper')
-      .attr('cx', (dayWidth/2))
-      .attr('cy', '28')
-      .attr('r', function(d) {
-        var dateFormatted = d.format(options.dateFormat), total = 0;
-        if (_.has(dateTotals, dateFormatted)) {
-          total = dateTotals[dateFormatted];
+    dayWrap.selectAll('circle.activity')
+      .data(function(d) {
+        return pack(dateEntries[d.format(options.dateFormat)] || {minutes: 0, children: []});
+      })
+      .enter().append('circle')
+      .attr('class', function(e) {
+        return 'activity' + (e.depth === 0 ? ' activity-type-wrapper' : '');
+      })
+      .attr('cx', function(e) {
+        return e.x;
+      })
+      .attr('cy', function(e) {
+        return e.y;
+      })
+      .attr('r', function(e) {
+        return e.r;
+      })
+      .attr('style', function(e) {
+        if (!_.has(e, 'project')) {
+          return null;
         }
-        return 42 * total / maxDateTotal;
+
+        var c = colors[e.project];
+        return 'fill: hsla('+c.h+','+c.s+'%,'+c.l+'%,0.4);';
       });
   });
 }
