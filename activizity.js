@@ -1,4 +1,4 @@
-/*global module*/
+/*global module, require, define, _, d3, moment*/
 /*! activizity v0.0.0 - MIT license */
 
 (function (global) {
@@ -20,14 +20,19 @@
       return colors;
     }
 
+    var update = function update(data) {
+      console.log('Update');
+    };
+
     /**
      * @param {}
      * @return {}
      * @api public
      */
-
     function activizity(options) {
-      options = options || {};
+      var self = this;
+
+      self.options = options || {};
       _.defaults(options, {
         containerSelector: '#activizity',
         data: function(callback) { callback(null, {}); },
@@ -35,10 +40,11 @@
         displayDateFormat: 'D MMM YYYY',
         displayShortDateFormat: 'D MMM',
         displayMonthFormat: 'MMM YYYY',
+        events: {},
         locale: 'en-ca'
       });
 
-      moment.locale(options.locale);
+      moment.locale(self.options.locale);
 
       // Load the data asynchronously
       //
@@ -58,7 +64,7 @@
       //   },
       //   ...
       // }
-      options.data(function(error, data) {
+      self.options.data(function(error, data) {
         if (error) {
           return;
         }
@@ -68,9 +74,6 @@
         if (dates.length === 0) {
           return;
         }
-
-        // the current month
-        var currentMonth = moment(dates[0], options.dateFormat);
 
         // create a list of all the project code in the data
         var projects =
@@ -109,7 +112,7 @@
         var months =
           _.uniq(
             _.map(_.keys(data), function(date) {
-              return moment(date, options.dateFormat).format('YYYY-MM');
+              return moment(date, self.options.dateFormat).format('YYYY-MM');
             })
           );
 
@@ -155,7 +158,6 @@
           }, 0);
         });
         var maxDateTotal = _.max(_.values(dateTotals));
-        console.log(maxDateTotal);
 
         var dateEntries = _.mapValues(_.mapValues(data, function(users) {
           var entries = {};
@@ -188,17 +190,20 @@
             return entry.minutes;
           });
 
+        // the current month
+        var currentMonth = moment(dates[0], self.options.dateFormat);
+
         var weekdaysShort = moment.weekdaysShort();
         weekdaysShort.unshift('');
 
-        var calendar = d3.select(options.containerSelector)
+        var calendar = d3.select(self.options.containerSelector)
           .append('div')
           .attr('class', 'activity-calendar');
         var header = calendar.append('div')
           .attr('class', 'activity-header');
         header.append('h3')
           .attr('class', 'current-month')
-          .text(currentMonth.format(options.displayMonthFormat));
+          .text(currentMonth.format(self.options.displayMonthFormat));
         var sidebar = calendar.append('div')
           .attr('class', 'activity-sidebar');
         var projectList = sidebar.append('dl')
@@ -209,7 +214,7 @@
           .attr('class', function(p) { return p; });
         project.append('span')
           .attr('class', 'key-chip')
-          .attr('style', function(p, index) {
+          .attr('style', function(p) {
             return 'background-color: hsla(' + colors[p].h + ',' + colors[p].s + '%,' + colors[p].l + '%,0.4);';
           });
         project.append('span')
@@ -245,14 +250,14 @@
             return 160 * month.weeks.length;
           });
         var weeksGroup = monthChart.append('g')
-          .attr('transform', "translate(16, 0)");
+          .attr('transform', 'translate(16, 0)');
         var week = weeksGroup.selectAll('g')
           .data(function(month) {
             return month.weeks;
           })
           .enter().append('g')
           .attr('class', 'week')
-          .attr('transform', function(week, index) {
+          .attr('transform', function(w, index) {
             return 'translate(0, ' + (160 * index) + ')';
           });
         week.append('line')
@@ -281,7 +286,7 @@
               hours,
               handleUser = function(u) {
                 if (u.entries) {
-                  _.each(u.entries, function(e, key) {
+                  _.each(u.entries, function(e) {
                     minutes += e.minutes;
                   });
                 }
@@ -309,13 +314,13 @@
           });
         dayWrap.append('line')
           .attr('class', 'week-shelf-connection')
-          .attr('x1', (dayWidth/2))
+          .attr('x1', (dayWidth / 2))
           .attr('y1', '92')
-          .attr('x2', (dayWidth/2))
+          .attr('x2', (dayWidth / 2))
           .attr('y2', '28');
         dayWrap.selectAll('circle.activity')
           .data(function(d) {
-            return pack(dateEntries[d.format(options.dateFormat)] || {minutes: 0, children: []});
+            return pack(dateEntries[d.format(self.options.dateFormat)] || {minutes: 0, children: []});
           })
           .enter().append('circle')
           .attr('class', function(e) {
@@ -336,16 +341,15 @@
             }
 
             var c = colors[e.project];
-            return 'fill: hsla('+c.h+','+c.s+'%,'+c.l+'%,0.4);';
+            return 'fill: hsla(' + c.h + ',' + c.s + '%,' + c.l + '%,0.4);';
           });
       });
     }
 
-  /**
-   * Expose activizity
-   */
-
-  return activizity;
+    /**
+     * Expose activizity
+     */
+    return activizity;
 
   // ---------------------------------------------------------------------------
 
